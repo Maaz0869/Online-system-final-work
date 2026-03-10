@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, RotateCcw, Eye, CheckCircle, XCircle, ShieldCheck } from 'lucide-react';
+import { Search, RotateCcw, Eye, CheckCircle, XCircle, ShieldCheck, ListChecks, Hourglass, CheckSquare, XSquare } from 'lucide-react';
 
 const AdminDash = () => {
   const [projectList, setProjectList] = useState([
@@ -23,6 +23,14 @@ const AdminDash = () => {
     proj.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // --- Stats Calculation ---
+  const stats = {
+    total: projectList.length,
+    pending: projectList.filter(p => p.status === 'Pending').length,
+    approved: projectList.filter(p => p.status === 'Approved').length,
+    rejected: projectList.filter(p => p.status === 'Rejected').length
+  };
+
   return (
     <div className="min-h-screen bg-[#1a103d] p-4 md:p-10 font-sans text-white">
       <div className="max-w-7xl mx-auto">
@@ -42,8 +50,55 @@ const AdminDash = () => {
           </div>
         </div>
 
+        {/* --- STATS CARDS SECTION --- */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {/* Total Projects */}
+          <div className="bg-[#2d1b69] border-b-4 border-indigo-500 p-6 rounded-[2rem] shadow-xl hover:translate-y-[-5px] transition-all">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase text-indigo-300 tracking-widest">Total Projects</p>
+                <p className="text-4xl font-black mt-1">{stats.total}</p>
+              </div>
+              <ListChecks className="text-indigo-400" size={40} />
+            </div>
+          </div>
+
+          {/* Pending */}
+          <div className="bg-[#2d1b69] border-b-4 border-yellow-400 p-6 rounded-[2rem] shadow-xl hover:translate-y-[-5px] transition-all">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase text-yellow-300 tracking-widest">Admin Pending</p>
+                <p className="text-4xl font-black mt-1 text-yellow-400">{stats.pending}</p>
+              </div>
+              <Hourglass className="text-yellow-400" size={40} />
+            </div>
+          </div>
+
+          {/* Approved */}
+          <div className="bg-[#2d1b69] border-b-4 border-green-500 p-6 rounded-[2rem] shadow-xl hover:translate-y-[-5px] transition-all">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase text-green-300 tracking-widest">Final Approved</p>
+                <p className="text-4xl font-black mt-1 text-green-400">{stats.approved}</p>
+              </div>
+              <CheckSquare className="text-green-400" size={40} />
+            </div>
+          </div>
+
+          {/* Rejected */}
+          <div className="bg-[#2d1b69] border-b-4 border-red-500 p-6 rounded-[2rem] shadow-xl hover:translate-y-[-5px] transition-all">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase text-red-300 tracking-widest">Rejected</p>
+                <p className="text-4xl font-black mt-1 text-red-400">{stats.rejected}</p>
+              </div>
+              <XSquare className="text-red-400" size={40} />
+            </div>
+          </div>
+        </div>
+
         {/* Search Bar */}
-        <div className="bg-[#2d1b69]/50 backdrop-blur-md p-5 rounded-[2rem] border border-white/10 flex flex-col md:flex-row gap-4 mb-8">
+        <div className="bg-[#2d1b69]/50 backdrop-blur-md p-5 rounded-[2rem] border border-white/10 flex flex-col md:flex-row gap-4 mb-8 shadow-2xl">
           <div className="relative flex-1 group">
             <Search className="absolute left-4 top-4 text-indigo-400 group-focus-within:text-yellow-400" size={24} />
             <input 
@@ -59,7 +114,7 @@ const AdminDash = () => {
           </button>
         </div>
 
-        {/* Modern Table */}
+        {/* Table Section */}
         <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -79,14 +134,12 @@ const AdminDash = () => {
                   return (
                     <tr key={proj.id} className="hover:bg-indigo-50/60 transition-colors group">
                       <td className="px-8 py-6 text-center font-black text-gray-300 text-xl">{index + 1}</td>
-                      <td className="px-6 py-6">
-                        <div className="font-black text-gray-800 text-lg uppercase tracking-tight">{proj.student}</div>
+                      <td className="px-6 py-6 text-gray-800">
+                        <div className="font-black text-lg uppercase tracking-tight">{proj.student}</div>
                         <div className="text-indigo-600 font-bold italic">"{proj.title}"</div>
                       </td>
-                      
-                      {/* TEACHER STATUS - LARGER VERSION */}
                       <td className="px-6 py-6 text-center">
-                        <span className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border-2 shadow-sm ${
+                        <span className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border-2 ${
                           proj.teacherStatus === 'Approved' ? 'bg-blue-50 text-blue-700 border-blue-200' : 
                           proj.teacherStatus === 'Rejected' ? 'bg-red-50 text-red-700 border-red-200' : 
                           'bg-gray-100 text-gray-500 border-gray-300'
@@ -95,47 +148,32 @@ const AdminDash = () => {
                           {proj.teacherStatus}
                         </span>
                       </td>
-
-                      {/* ADMIN STATUS - LARGER & BOLDER */}
                       <td className="px-6 py-6 text-center">
                         <span className={`inline-block min-w-[140px] px-6 py-3 rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-lg ${
-                          proj.status === 'Approved' ? 'bg-green-500 text-white shadow-green-500/30' : 
-                          proj.status === 'Rejected' ? 'bg-red-500 text-white shadow-red-500/30' : 
-                          'bg-yellow-400 text-gray-900 shadow-yellow-400/30'
+                          proj.status === 'Approved' ? 'bg-green-500 text-white' : 
+                          proj.status === 'Rejected' ? 'bg-red-500 text-white' : 
+                          'bg-yellow-400 text-gray-900'
                         }`}>
                           {proj.status}
                         </span>
                       </td>
-
-                      {/* Actions */}
                       <td className="px-6 py-6 text-right">
                         <div className="flex justify-end gap-3">
                           <button 
                             disabled={!isTeacherApproved}
                             onClick={() => handleStatusUpdate(proj.id, 'Approved')}
-                            className={`p-3 rounded-xl transition-all shadow-lg ${
-                              isTeacherApproved 
-                              ? "bg-green-600 text-white hover:bg-green-700 hover:-translate-y-1 active:scale-90" 
-                              : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                            }`}
-                            title="Final Approve"
+                            className={`p-3 rounded-xl transition-all shadow-lg ${isTeacherApproved ? "bg-green-600 text-white hover:scale-110" : "bg-gray-200 text-gray-400"}`}
                           >
                             <CheckCircle size={22} />
                           </button>
-                          
                           <button 
                             disabled={!isTeacherApproved}
                             onClick={() => handleStatusUpdate(proj.id, 'Rejected')}
-                            className={`p-3 rounded-xl transition-all shadow-lg ${
-                              isTeacherApproved 
-                              ? "bg-red-600 text-white hover:bg-red-700 hover:-translate-y-1 active:scale-90" 
-                              : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                            }`}
+                            className={`p-3 rounded-xl transition-all shadow-lg ${isTeacherApproved ? "bg-red-600 text-white hover:scale-110" : "bg-gray-200 text-gray-400"}`}
                           >
                             <XCircle size={22} />
                           </button>
-
-                          <button className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 hover:-translate-y-1 shadow-lg shadow-indigo-600/20">
+                          <button className="p-3 bg-indigo-600 text-white rounded-xl hover:scale-110 shadow-lg shadow-indigo-600/20">
                             <Eye size={22} />
                           </button>
                         </div>
@@ -147,7 +185,6 @@ const AdminDash = () => {
             </table>
           </div>
         </div>
-
       </div>
     </div>
   );
