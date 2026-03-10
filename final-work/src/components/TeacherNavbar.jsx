@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import Logo from "../assets/uap-logo.png";
 import ProfileImg from "../assets/profile.webp";
 
-function StudentNavbar() {
+function TeacherNavbar() {
   const [isOpen, setIsOpen] = useState(false); // Mobile menu handle karne ke liye
 
   const linkClass = ({ isActive }) =>
@@ -83,19 +83,13 @@ function StudentNavbar() {
                 About
               </NavLink>
               <NavLink
-                to="/form"
+                to="/profile"
                 className={linkClass}
                 onClick={() => setIsOpen(false)}
               >
-                Form
+                Profile
               </NavLink>
-              <NavLink
-                to="/project"
-                className={linkClass}
-                onClick={() => setIsOpen(false)}
-              >
-                Project
-              </NavLink>
+              {/* <NavLink to="/project" className={linkClass} onClick={() => setIsOpen(false)}>Project</NavLink> */}
             </div>
 
             {/* Right: Buttons & Profile */}
@@ -122,4 +116,4 @@ function StudentNavbar() {
   );
 }
 
-export default StudentNavbar;
+export default TeacherNavbar;
