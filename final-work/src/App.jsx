@@ -18,7 +18,7 @@ import SignUPForm from "./pages/SignUPForm";
 function App() {
   return (
     <>
-      {/* <StudentNavbar />
+      <StudentNavbar />
       <Routes>
          <Route path="/dashboard" element={<StudentDash />} />
         <Route path="/" element={<Home />} />
@@ -26,7 +26,7 @@ function App() {
         <Route path="/project" element={<h1>Project Page</h1>} />
         <Route path="/form" element={<Form />} />
       </Routes>
-      <Footer /> */}
+      <Footer />
       {/* ab is ki bad ham TEacher ka section banahi gi  */}
       {/* <TeacherNavbar />
       <Routes>
@@ -44,8 +44,8 @@ function App() {
         <Route path="/admin/all-projects" element={<h1>All Projects</h1>} />
       </Routes> */}
       {/* <Footer /> */}
-      <LoginForm />
-      <SignUPForm />
+      {/* <LoginForm />
+      <SignUPForm /> */}
     </>
   );
 }
