@@ -11,6 +11,8 @@ import TeacherProfile from "./pages/teacher/TeacherProfile";
 import AdminNavbar from "./components/AdminNavbar";
 import AdminDashboard from "./pages/admin/AdminDash";
 // import AddTeacher from "./pages/admin/AddTeacher";
+import LoginForm from "./pages/LoginForm";
+import SignUPForm from "./pages/SignUPForm";
 
 
 function App() {
@@ -34,14 +36,16 @@ function App() {
         <Route path="/profile" element={<TeacherProfile />} />
       </Routes>
       <Footer /> */}
-      <AdminNavbar />
+      {/* <AdminNavbar /> */}
       {/* Admin ke liye bhi ham ek dashboard bana sakte hain jisme wo users aur projects manage kar sake */}
-      <Routes>
+      {/* <Routes>
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        {/* <Route path="/admin/Addteacher" element={<AddTeacher />} /> */}
+        <Route path="/admin/Addteacher" element={<AddTeacher />} />
         <Route path="/admin/all-projects" element={<h1>All Projects</h1>} />
-      </Routes>
-      <Footer />
+      </Routes> */}
+      {/* <Footer /> */}
+      {/* <LoginForm /> */}
+      <SignUPForm />
     </>
   );
 }
