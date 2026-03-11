@@ -17,6 +17,7 @@ const LoginForm = () => {
 
   return (
     <div
+      id="login"
       className="min-h-screen bg-[#001529] flex items-center justify-center p-4 font-sans relative overflow-hidden"
       style={{
         backgroundImage: `url(${About})`,
@@ -159,9 +160,12 @@ const LoginForm = () => {
 
           <p className="mt-8 text-center text-sm font-bold text-gray-400">
             Don't have an account?{" "}
-            <span className="text-[#002147] cursor-pointer hover:underline">
-              Contact Admin
-            </span>
+            <a
+              href="#signup"
+              className="text-[#002147] font-bold hover:underline"
+            >
+              Create an account
+            </a>
           </p>
         </div>
       </div>

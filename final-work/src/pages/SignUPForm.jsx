@@ -33,6 +33,7 @@ const SignUPForm = () => {
 
   return (
     <div
+      id="signup"
       className="min-h-screen bg-[#001529] flex items-center justify-center p-4 font-sans relative overflow-hidden"
       style={{
         backgroundImage: `url(${Home1})`,
@@ -246,9 +247,12 @@ const SignUPForm = () => {
 
           <p className="mt-6 text-center text-sm font-bold text-gray-400 uppercase tracking-tighter">
             Already registered?{" "}
-            <span className="text-[#002147] cursor-pointer hover:underline">
+            <a
+              href="#login"
+              className="text-[#002147] cursor-pointer hover:underline"
+            >
               Sign In Instead
-            </span>
+            </a>
           </p>
         </div>
       </div>
