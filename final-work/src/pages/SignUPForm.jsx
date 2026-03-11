@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Logo from "../assets/uap-logo.png"; // UAP logo path
 import Home1 from "../assets/Home1.jpg";
+import axios from "axios";
 
 const SignUPForm = () => {
   const [formData, setFormData] = useState({
@@ -21,15 +22,31 @@ const SignUPForm = () => {
     confirmPassword: "",
   });
 
-  const handleSignup = (e) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-    console.log("Registering Student:", formData);
-    // Backend API Call: axios.post('/api/auth/register', formData)
-  };
+ // ... inside SignUPForm component
+const handleSignup = async (e) => {
+  e.preventDefault();
+  
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  try {
+    // We point this to our Node server port (5000)
+    const response = await axios.post("http://localhost:5000/api/register", {
+      fullName: formData.fullName,
+      email: formData.email,
+      regNo: formData.regNo,
+      department: formData.department,
+      password: formData.password,
+    });
+
+    alert("Registration Successful!");
+    console.log(response.data);
+  } catch (error) {
+    alert(error.response?.data?.message || "Server Error");
+  }
+};
 
   return (
     <div

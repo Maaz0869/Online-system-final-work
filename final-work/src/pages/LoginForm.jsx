@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Mail, Lock, UserCircle, ArrowRight, ShieldCheck } from "lucide-react";
+import axios from "axios";
 import Logo from "../assets/uap-logo.png"; // Aapka logo path
 // Using 'above.jpg' from assets as the requested 'about' background image.
 // Assumption: the asset named 'about' was not found; using 'above.jpg' as the closest available image.
@@ -9,10 +10,19 @@ const LoginForm = () => {
   const [role, setRole] = useState("student"); // Default role
   const [formData, setFormData] = useState({ email: "", password: "" });
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Logging in as:", role, formData);
-    // Yahan backend API call hogi: axios.post('/api/auth/login', { ...formData, role })
+    try {
+      const response = await axios.post("http://localhost:5000/api/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+      alert(response.data.message || "Login successful");
+      console.log(response.data);
+      // TODO: on success, redirect user to dashboard or save token
+    } catch (err) {
+      alert(err.response?.data?.message || "Login failed");
+    }
   };
 
   return (

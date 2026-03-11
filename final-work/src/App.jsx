@@ -44,8 +44,8 @@ function App() {
         <Route path="/admin/all-projects" element={<h1>All Projects</h1>} />
       </Routes> */}
       {/* <Footer /> */}
-      {/* <LoginForm />
-      <SignUPForm /> */}
+      <LoginForm />
+      <SignUPForm />
     </>
   );
 }

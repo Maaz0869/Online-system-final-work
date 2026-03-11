@@ -100,9 +100,20 @@ function StudentNavbar() {
 
             {/* Right: Buttons & Profile */}
             <div className="flex flex-col md:flex-row items-center gap-3 py-5 md:py-0 px-4">
-              <button className="w-full md:w-auto px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition text-sm">
-                SignIn/SignUp
-              </button>
+              <a
+                href="#login"
+                onClick={() => setIsOpen(false)}
+                className="w-full md:w-auto px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition text-sm text-center"
+              >
+                Sign In
+              </a>
+              <a
+                href="#signup"
+                onClick={() => setIsOpen(false)}
+                className="w-full md:w-auto px-4 py-2 rounded bg-yellow-400 text-[#002147] hover:bg-yellow-500 transition text-sm text-center"
+              >
+                Sign Up
+              </a>
               <button className="w-full md:w-auto px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100 transition text-sm">
                 Logout
               </button>
