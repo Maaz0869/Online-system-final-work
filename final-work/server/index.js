@@ -1,129 +1,94 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
-// Require the user model (file name is lowercase 'user.js')
-const User = require("./models/user"); // Jo model humne banaya tha
+const { createClient } = require("@supabase/supabase-js");
 require("dotenv").config();
 
 const app = express();
+app.use(express.json());
+app.use(cors());
 
-// Middleware
-app.use(express.json()); // JSON data parse karne ke liye
-app.use(cors()); // Frontend aur Backend ke darmiyan connection allow karne ke liye
+// Supabase client
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY,
+);
 
-// 1. MongoDB Connection
-const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/fyp";
-let dbConnected = false;
-mongoose
-  .connect(process.env.MONGO_URI || mongoUri)
-  .then(() => {
-    dbConnected = true;
-    console.log("✅ Connected to MongoDB");
-  })
-  .catch((err) => {
-    dbConnected = false;
-    console.log("❌ Connection Error Details:");
-    console.error(err.message); // Yeh line aapko batayegi ke "Invalid password" hai ya "IP blocked"
-    // Also log full error for debugging (optional)
-    console.debug(err);
-  });
-
-// Health endpoint to report server and DB connection status
+// Health check
 app.get("/health", (req, res) => {
-  res.json({ ok: true, dbConnected });
+  res.json({ ok: true });
 });
 
-// 2. Signup Route
+// REGISTER
 app.post("/api/register", async (req, res) => {
   try {
     const { fullName, email, regNo, department, password } = req.body;
 
-    // Choose data layer: real DB when connected; otherwise use mockDb.
-    const usingMock = !dbConnected;
-    if (usingMock)
-      console.warn(
-        "⚠️  MongoDB not connected — using in-memory mock DB for register route.",
-      );
+    // Check if user already exists
+    const { data: existing } = await supabase
+      .from("users")
+      .select("id")
+      .or(`email.eq.${email},reg_no.eq.${regNo}`)
+      .single();
 
-    // Check if student already exists
-    const userExists = usingMock
-      ? await require("./mockDb").findOne({ $or: [{ email }, { regNo }] })
-      : await User.findOne({ $or: [{ email }, { regNo }] });
-
-    if (userExists) {
+    if (existing) {
       return res
         .status(400)
         .json({ message: "Email or Reg. Number already registered" });
     }
 
-    // Password hashing
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save student to database or mock
-    if (usingMock) {
-      await require("./mockDb").create({
-        fullName,
+    // Insert user
+    const { error } = await supabase.from("users").insert([
+      {
+        full_name: fullName,
         email,
-        regNo,
+        reg_no: regNo,
         department,
         password: hashedPassword,
-      });
-    } else {
-      const newStudent = new User({
-        fullName,
-        email,
-        regNo,
-        department,
-        password: hashedPassword,
-      });
-      await newStudent.save();
-    }
+      },
+    ]);
 
-    res
-      .status(201)
-      .json({ message: "Student registered successfully!", usingMock });
+    if (error) throw error;
+
+    res.status(201).json({ message: "Student registered successfully!" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error. Please try again." });
   }
 });
 
-// 2b. Login Route
+// LOGIN
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const usingMock = !dbConnected;
 
-    // find user
-    const user = usingMock
-      ? await require("./mockDb").findOne({ email })
-      : await User.findOne({ email });
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
 
-    if (!user)
+    if (error || !user) {
       return res.status(400).json({ message: "Invalid email or password" });
+    }
 
-    // compare passwords (user.password is hashed)
     const match = await bcrypt.compare(password, user.password);
-    if (!match)
+    if (!match) {
       return res.status(400).json({ message: "Invalid email or password" });
+    }
 
-    // success - in real app return a token; here return basic info
-    const safeUser = {
-      email: user.email,
-      fullName: user.fullName,
-      regNo: user.regNo,
-    };
-    res.json({ message: "Login successful", user: safeUser, usingMock });
+    res.json({
+      message: "Login successful",
+      user: { email: user.email, fullName: user.full_name, regNo: user.reg_no },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server Error" });
   }
 });
 
-// 3. Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

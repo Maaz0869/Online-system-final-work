@@ -3,6 +3,10 @@ import { Link, NavLink } from "react-router-dom";
 import Logo from "../assets/uap-logo.png";
 import ProfileImg from "../assets/profile.webp";
 
+const handleLogout = () => {
+  localStorage.removeItem("user");
+  window.location.href = "/login";
+};
 function StudentNavbar() {
   const [isOpen, setIsOpen] = useState(false); // Mobile menu handle karne ke liye
 
@@ -114,9 +118,10 @@ function StudentNavbar() {
               >
                 Sign Up
               </a>
-              <button className="w-full md:w-auto px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100 transition text-sm">
+              {/* <button className="w-full md:w-auto px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100 transition text-sm">
                 Logout
-              </button>
+              </button> */}
+              <button onClick={handleLogout}>Logout</button>
               <img
                 src={ProfileImg}
                 alt="Profile"

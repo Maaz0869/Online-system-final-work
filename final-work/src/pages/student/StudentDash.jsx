@@ -2,6 +2,10 @@ import React from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
+// Get logged-in user
+const user = JSON.parse(localStorage.getItem("user"));
+const userName = user?.fullName || "Student";
+
 const StudentDash = () => {
   const applications = [
     {
@@ -37,11 +41,10 @@ const StudentDash = () => {
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-12 p-4 md:p-12 font-sans text-[#002147] pt-24">
       <div className="max-w-6xl mx-auto">
-        
         {/* --- Simple Welcome Message --- */}
         <div className="mb-10 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-            Welcome <span className="text-blue-600">Maaz Khan!</span>
+            Welcome <span className="text-blue-600"> {userName}</span>
           </h1>
           <p className="text-gray-600 mt-2 text-sm md:text-base">
             Here are your recent applications and their status.
@@ -72,16 +75,23 @@ const StudentDash = () => {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {applications.map((app) => (
-                  <tr key={app.id} className="hover:bg-blue-50/20 transition-all">
-                    <td className="px-8 py-6 font-semibold text-gray-700">{app.type}</td>
+                  <tr
+                    key={app.id}
+                    className="hover:bg-blue-50/20 transition-all"
+                  >
+                    <td className="px-8 py-6 font-semibold text-gray-700">
+                      {app.type}
+                    </td>
                     <td className="px-8 py-6 text-gray-500">{app.date}</td>
                     <td className="px-8 py-6">
-                      <span className={`px-4 py-1.5 rounded-full text-[11px] font-bold inline-flex items-center gap-2 ${app.statusColor}`}>
+                      <span
+                        className={`px-4 py-1.5 rounded-full text-[11px] font-bold inline-flex items-center gap-2 ${app.statusColor}`}
+                      >
                         {app.status === "Approved" ? "✅" : "⏳"} {app.status}
                       </span>
                     </td>
                     <td className="px-8 py-6 text-center">
-                      <button 
+                      <button
                         onClick={() => handleDownloadStatus(app)}
                         className="bg-white border border-gray-200 text-gray-600 hover:bg-[#002147] hover:text-white px-4 py-2 rounded-xl transition-all font-bold text-xs flex items-center gap-2 mx-auto"
                       >
@@ -98,21 +108,27 @@ const StudentDash = () => {
               {applications.map((app) => (
                 <div key={app.id} className="p-6 space-y-4">
                   <div>
-                    <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Type</p>
+                    <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
+                      Type
+                    </p>
                     <p className="font-bold text-gray-800">{app.type}</p>
                   </div>
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-[10px] text-gray-400 uppercase font-bold">Date</p>
+                      <p className="text-[10px] text-gray-400 uppercase font-bold">
+                        Date
+                      </p>
                       <p className="text-sm text-gray-600">{app.date}</p>
                     </div>
                     <div>
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 ${app.statusColor}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 ${app.statusColor}`}
+                      >
                         {app.status === "Approved" ? "✅" : "⏳"} {app.status}
                       </span>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => handleDownloadStatus(app)}
                     className="w-full bg-gray-50 border border-gray-200 text-gray-700 py-3 rounded-xl font-bold text-xs flex justify-center items-center gap-2 active:bg-gray-200 transition"
                   >

@@ -10,6 +10,20 @@ const LoginForm = () => {
   const [role, setRole] = useState("student"); // Default role
   const [formData, setFormData] = useState({ email: "", password: "" });
 
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const response = await axios.post("http://localhost:5000/api/login", {
+  //       email: formData.email,
+  //       password: formData.password,
+  //     });
+  //     alert(response.data.message || "Login successful");
+  //     console.log(response.data);
+  //     // TODO: on success, redirect user to dashboard or save token
+  //   } catch (err) {
+  //     alert(err.response?.data?.message || "Login failed");
+  //   }
+  // };
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -17,9 +31,14 @@ const LoginForm = () => {
         email: formData.email,
         password: formData.password,
       });
-      alert(response.data.message || "Login successful");
-      console.log(response.data);
-      // TODO: on success, redirect user to dashboard or save token
+
+      // Save user info to localStorage
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      // Redirect based on role
+      if (role === "student") window.location.href = "/dashboard";
+      else if (role === "teacher") window.location.href = "/teacher-dashboard";
+      else if (role === "admin") window.location.href = "/admin/dashboard";
     } catch (err) {
       alert(err.response?.data?.message || "Login failed");
     }
