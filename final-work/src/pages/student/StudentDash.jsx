@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -6,23 +6,47 @@ import html2canvas from "html2canvas";
 const user = JSON.parse(localStorage.getItem("user"));
 const userName = user?.fullName || "Student";
 
+const defaultApplications = [
+  {
+    id: 1,
+    type: "Final Year Project Proposal",
+    date: "12 Jan 2026",
+    status: "Approved",
+    statusColor: "text-green-600 bg-green-100",
+  },
+  {
+    id: 2,
+    type: "Mentor Change Request",
+    date: "10 Jan 2026",
+    status: "Pending",
+    statusColor: "text-yellow-600 bg-yellow-100",
+  },
+];
+
 const StudentDash = () => {
-  const applications = [
-    {
-      id: 1,
-      type: "Final Year Project Proposal",
-      date: "12 Jan 2026",
-      status: "Approved",
-      statusColor: "text-green-600 bg-green-100",
-    },
-    {
-      id: 2,
-      type: "Mentor Change Request",
-      date: "10 Jan 2026",
-      status: "Pending",
-      statusColor: "text-yellow-600 bg-yellow-100",
-    },
-  ];
+  const [applications, setApplications] = useState(() => {
+    try {
+      const raw = localStorage.getItem("applications");
+      return raw ? JSON.parse(raw) : defaultApplications;
+    } catch (e) {
+      return defaultApplications;
+    }
+  });
+
+  // Listen for storage changes so dashboard updates across tabs
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === "applications") {
+        try {
+          setApplications(e.newValue ? JSON.parse(e.newValue) : []);
+        } catch (err) {
+          // ignore
+        }
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   // Function to download simple PDF status
   const handleDownloadStatus = (app) => {

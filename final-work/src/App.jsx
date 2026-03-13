@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import StudentNavbar from "./components/StudentNavbar";
 import StudentDash from "./pages/student/StudentDash";
 import Home from "./pages/student/Home";
@@ -14,17 +14,28 @@ import AdminDashboard from "./pages/admin/AdminDash";
 import LoginForm from "./pages/LoginForm";
 import SignUPForm from "./pages/SignUPForm";
 
-
 function App() {
+  // Simple private route wrapper - checks localStorage for user
+  const PrivateRoute = ({ children }) => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user) return children;
+    } catch (e) {
+      // ignore
+    }
+    return <Navigate to="/login" replace />;
+  };
   return (
     <>
       <StudentNavbar />
       <Routes>
-         <Route path="/dashboard" element={<StudentDash />} />
+        <Route path="/dashboard" element={<StudentDash />} />
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/project" element={<h1>Project Page</h1>} />
         <Route path="/form" element={<Form />} />
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/signup" element={<SignUPForm />} />
       </Routes>
       <Footer />
       {/* ab is ki bad ham TEacher ka section banahi gi  */}
@@ -44,8 +55,7 @@ function App() {
         <Route path="/admin/all-projects" element={<h1>All Projects</h1>} />
       </Routes> */}
       {/* <Footer /> */}
-      <LoginForm />
-      <SignUPForm />
+      {/* Login/Signup moved into routes so they don't render all the time */}
     </>
   );
 }

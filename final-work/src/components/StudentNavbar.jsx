@@ -1,14 +1,39 @@
-import React, { useState } from "react"; // useState add kiya toggle ke liye
+import React, { useState, useEffect } from "react"; // useState add kiya toggle ke liye
 import { Link, NavLink } from "react-router-dom";
 import Logo from "../assets/uap-logo.png";
 import ProfileImg from "../assets/profile.webp";
 
-const handleLogout = () => {
-  localStorage.removeItem("user");
-  window.location.href = "/login";
-};
 function StudentNavbar() {
   const [isOpen, setIsOpen] = useState(false); // Mobile menu handle karne ke liye
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch (e) {
+      return null;
+    }
+  });
+
+  // keep state in sync if localStorage changes in another tab
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === "user") {
+        try {
+          setUser(JSON.parse(e.newValue));
+        } catch (err) {
+          setUser(null);
+        }
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    // navigate to login route
+    window.location.href = "/login";
+  };
 
   const linkClass = ({ isActive }) =>
     `py-1 px-3 text-xl font-bold text-black hover:text-yellow-300 rounded-2xl transition duration-300 border-t-4 ${
@@ -65,13 +90,15 @@ function StudentNavbar() {
           >
             {/* Nav Links */}
             <div className="flex flex-col md:flex-row flex-1 justify-center items-center gap-5 py-5 md:py-0 w-full">
-              <NavLink
-                to="/dashboard"
-                className={linkClass}
-                onClick={() => setIsOpen(false)}
-              >
-                Dashboard
-              </NavLink>
+              {user && (
+                <NavLink
+                  to="/dashboard"
+                  className={linkClass}
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard
+                </NavLink>
+              )}
               <NavLink
                 to="/"
                 className={linkClass}
@@ -86,13 +113,15 @@ function StudentNavbar() {
               >
                 About
               </NavLink>
-              <NavLink
-                to="/form"
-                className={linkClass}
-                onClick={() => setIsOpen(false)}
-              >
-                Form
-              </NavLink>
+              {user && (
+                <NavLink
+                  to="/form"
+                  className={linkClass}
+                  onClick={() => setIsOpen(false)}
+                >
+                  Form
+                </NavLink>
+              )}
               <NavLink
                 to="/project"
                 className={linkClass}
@@ -104,29 +133,53 @@ function StudentNavbar() {
 
             {/* Right: Buttons & Profile */}
             <div className="flex flex-col md:flex-row items-center gap-3 py-5 md:py-0 px-4">
-              <a
-                href="#login"
-                onClick={() => setIsOpen(false)}
-                className="w-full md:w-auto px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition text-sm text-center"
-              >
-                Sign In
-              </a>
-              <a
-                href="#signup"
-                onClick={() => setIsOpen(false)}
-                className="w-full md:w-auto px-4 py-2 rounded bg-yellow-400 text-[#002147] hover:bg-yellow-500 transition text-sm text-center"
-              >
-                Sign Up
-              </a>
-              {/* <button className="w-full md:w-auto px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100 transition text-sm">
-                Logout
-              </button> */}
-              <button onClick={handleLogout}>Logout</button>
-              <img
-                src={ProfileImg}
-                alt="Profile"
-                className="h-10 w-10 rounded-full object-cover border-2 border-white shadow-sm hidden md:block"
-              />
+              {/* If no user -> show Sign In / Sign Up */}
+              {!user ? (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="w-full md:w-auto px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition text-sm text-center"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setIsOpen(false)}
+                    className="w-full md:w-auto px-4 py-2 rounded bg-yellow-400 text-[#002147] hover:bg-yellow-500 transition text-sm text-center"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              ) : (
+                /* When logged in: show user name, logout and profile image */
+                <>
+                  <div className="hidden md:flex items-center gap-3 mr-2">
+                    <img
+                      src={ProfileImg}
+                      alt="Profile"
+                      className="h-10 w-10 rounded-full object-cover border-2 border-white shadow-sm"
+                    />
+                    <div className="text-left">
+                      <div className="text-sm font-bold text-slate-800">
+                        {user.fullName || user.name || user.email}
+                      </div>
+                      <div className="text-[11px] text-slate-400">
+                        {user.role || "Student"}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full md:w-auto px-4 py-2 rounded border border-gray-200 text-gray-700 hover:bg-[#002147] hover:text-white transition text-sm flex items-center justify-center"
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

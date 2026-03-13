@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import HeroBg from "../../assets/above.jpg";
 
 const teachersData = [
@@ -48,6 +49,27 @@ const teachersData = [
 
 export default function About() {
   const REQUEST_LIMIT = 10;
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch (e) {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === "user") {
+        try {
+          setUser(JSON.parse(e.newValue));
+        } catch (err) {
+          setUser(null);
+        }
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   return (
     <div className="bg-[#f8fafc] min-h-screen pt-20 md:pt-24 pb-12 overflow-x-hidden">
@@ -71,18 +93,20 @@ export default function About() {
               Final Year Project.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <a
-                href="/form"
-                className="px-10 py-4 bg-yellow-400 text-black rounded-full font-black hover:bg-yellow-500 transition-all shadow-xl active:scale-95"
-              >
-                Request Mentor
-              </a>
-              <a
-                href="/project"
+              {user && (
+                <Link
+                  to="/form"
+                  className="px-10 py-4 bg-yellow-400 text-black rounded-full font-black hover:bg-yellow-500 transition-all shadow-xl active:scale-95"
+                >
+                  Request Mentor
+                </Link>
+              )}
+              <Link
+                to="/project"
                 className="px-10 py-4 border-2 border-white/50 backdrop-blur-md rounded-full text-white font-bold hover:bg-white/10 transition-all active:scale-95"
               >
                 Explore Projects
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -112,7 +136,7 @@ export default function About() {
           return (
             <div
               key={t.id}
-              className={`relative bg-white rounded-[3rem] p-8 transition-all duration-500 border-2 flex flex-col items-center group ${
+              className={`relative bg-gray-300 rounded-[3rem] p-8 transition-all duration-500 border-2 flex flex-col items-center group ${
                 isFull
                   ? "border-gray-100 opacity-80"
                   : "border-transparent hover:border-yellow-200 hover:shadow-[0_20px_50px_rgba(245,158,11,0.08)] hover:-translate-y-2 shadow-sm"
