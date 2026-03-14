@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Form = () => {
   const [form, setForm] = useState({
@@ -21,6 +21,7 @@ const Form = () => {
 
   const printRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const [errors, setErrors] = useState({});
 
   const handleChange = (key) => (e) => {
@@ -96,6 +97,31 @@ const Form = () => {
     const size = Math.max(1, Math.min(3, Number(n)));
     setForm((s) => ({ ...s, teamSize: size }));
   };
+
+  // If the student clicked 'Take Idea' from the Project list, prefill the form
+  useEffect(() => {
+    try {
+      let pre = location && location.state && location.state.idea;
+      if (!pre) {
+        const raw = localStorage.getItem("prefillIdea");
+        pre = raw ? JSON.parse(raw) : null;
+      }
+      if (pre) {
+        setForm((s) => ({
+          ...s,
+          topic: pre.title || s.topic,
+          organization: s.organization || "",
+          advisor: pre.teacher || s.advisor,
+        }));
+        // remove saved prefills so they don't persist
+        try {
+          localStorage.removeItem("prefillIdea");
+        } catch (e) {}
+      }
+    } catch (err) {
+      // ignore
+    }
+  }, [location]);
 
   // PDF Download Logic - Sirf Form Area Capture Hoga
   const handleDownload = async () => {
