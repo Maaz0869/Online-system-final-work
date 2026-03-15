@@ -1,40 +1,22 @@
 import React, { useState } from "react";
 
-export default function AddTeacher() {
+export default function AddTeacherNew() {
   const [form, setForm] = useState({
     name: "",
     email: "",
     department: "",
     password: "",
   });
-  const [created, setCreated] = useState(null); // { email, password, name }
 
   const handleChange = (e) =>
     setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
 
-  const generatePassword = (len = 10) => {
-    const chars =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
-    let p = "";
-    for (let i = 0; i < len; i++)
-      p += chars[Math.floor(Math.random() * chars.length)];
-    return p;
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    let { name, email, department, password } = form;
-    name = (name || "").trim();
-    email = (email || "").trim().toLowerCase();
-    department = (department || "").trim();
-
-    if (!name || !email || !department) {
-      window.alert("Please provide Name, Email and Department.");
+    const { name, email, department, password } = form;
+    if (!name || !email || !department || !password) {
+      alert("Please provide Name, Email, Department and Password.");
       return;
-    }
-
-    if (!password) {
-      password = generatePassword();
     }
 
     try {
@@ -52,37 +34,21 @@ export default function AddTeacher() {
             : u,
         );
         localStorage.setItem("users", JSON.stringify(updated));
-        setCreated({ email, password, name });
+        alert("Teacher account updated.");
         setForm({ name: "", email: "", department: "", password: "" });
         return;
       }
 
       users.push({ email, password, role: "teacher", name, department });
       localStorage.setItem("users", JSON.stringify(users));
-      setCreated({ email, password, name });
+      alert(
+        "Teacher account created. Share the login details with the teacher.",
+      );
       setForm({ name: "", email: "", department: "", password: "" });
     } catch (err) {
       console.error(err);
-      window.alert("Unable to create teacher account.");
+      alert("Unable to create teacher account.");
     }
-  };
-
-  const handleCopy = (text) => {
-    if (!navigator?.clipboard) {
-      // fallback
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      ta.remove();
-      window.alert("Copied to clipboard");
-      return;
-    }
-    navigator.clipboard.writeText(text).then(() => {
-      // small feedback
-      window.alert("Copied to clipboard");
-    });
   };
 
   return (
@@ -106,7 +72,6 @@ export default function AddTeacher() {
               value={form.name}
               onChange={handleChange}
               className="w-full mt-2 p-3 rounded-xl bg-white/10 outline-none text-gray-100"
-              placeholder="Full official name"
             />
           </div>
 
@@ -120,7 +85,6 @@ export default function AddTeacher() {
               onChange={handleChange}
               type="email"
               className="w-full mt-2 p-3 rounded-xl bg-white/10 outline-none text-gray-100"
-              placeholder="teacher@example.com"
             />
           </div>
 
@@ -139,7 +103,7 @@ export default function AddTeacher() {
 
           <div>
             <label className="text-xs font-black uppercase text-gray-300">
-              Temporary Password (optional)
+              Temporary Password
             </label>
             <input
               name="password"
@@ -147,20 +111,11 @@ export default function AddTeacher() {
               onChange={handleChange}
               type="password"
               className="w-full mt-2 p-3 rounded-xl bg-white/10 outline-none text-gray-100"
-              placeholder="Leave empty to auto-generate"
+              placeholder="Enter a temporary password"
             />
           </div>
 
-          <div className="flex items-center gap-3 justify-end">
-            <button
-              type="button"
-              onClick={() =>
-                setForm((s) => ({ ...s, password: generatePassword() }))
-              }
-              className="bg-gray-700 px-4 py-2 rounded-xl text-sm"
-            >
-              Generate Password
-            </button>
+          <div className="flex justify-end">
             <button
               type="submit"
               className="bg-green-600 px-6 py-3 rounded-2xl font-black"
@@ -169,41 +124,6 @@ export default function AddTeacher() {
             </button>
           </div>
         </form>
-
-        {created && (
-          <div className="mt-6 p-4 bg-white/3 rounded-xl border border-white/6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-300">
-                  Teacher account created for
-                </div>
-                <div className="font-bold text-white">
-                  {created.name} — {created.email}
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm text-gray-300">Temporary password</div>
-                <div className="font-mono mt-1 bg-white/5 inline-block px-3 py-1 rounded">
-                  {created.password}
-                </div>
-              </div>
-            </div>
-            <div className="mt-3 flex gap-3 justify-end">
-              <button
-                onClick={() => handleCopy(created.password)}
-                className="px-4 py-2 rounded-xl bg-blue-600"
-              >
-                Copy Password
-              </button>
-              <button
-                onClick={() => setCreated(null)}
-                className="px-4 py-2 rounded-xl bg-gray-700"
-              >
-                Dismiss
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

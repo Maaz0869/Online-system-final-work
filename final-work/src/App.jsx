@@ -11,7 +11,7 @@ import TeacherDash from "./pages/teacher/TeacherDash";
 import TeacherProfile from "./pages/teacher/TeacherProfile";
 import AdminNavbar from "./components/AdminNavbar";
 import AdminDashboard from "./pages/admin/AdminDash";
-// import AddTeacher from "./pages/admin/AddTeacher";
+import AddTeacher from "./pages/admin/AddTeacherNew";
 import LoginForm from "./pages/LoginForm";
 import SignUPForm from "./pages/SignUPForm";
 
@@ -105,6 +105,14 @@ function App() {
           element={
             <PrivateRoute roles={["admin"]}>
               <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/add-teacher"
+          element={
+            <PrivateRoute roles={["admin"]}>
+              <AddTeacher />
             </PrivateRoute>
           }
         />

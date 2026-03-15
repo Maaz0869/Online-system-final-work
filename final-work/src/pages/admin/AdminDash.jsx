@@ -10,6 +10,7 @@ import {
   Hourglass,
   CheckSquare,
   XSquare,
+  Trash2,
 } from "lucide-react";
 
 const AdminDash = () => {
@@ -52,6 +53,7 @@ const AdminDash = () => {
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterMode, setFilterMode] = useState("all"); // all | approved | rejected
 
   const handleStatusUpdate = (id, newStatus) => {
     setProjectList((prev) =>
@@ -61,11 +63,45 @@ const AdminDash = () => {
     );
   };
 
-  const filteredProjects = projectList.filter(
-    (proj) =>
-      proj.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      proj.title.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const handleDelete = (id) => {
+    const ok = window.confirm(
+      "Are you sure you want to delete this project? This action cannot be undone.",
+    );
+    if (!ok) return;
+    setProjectList((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const filteredProjects = projectList
+    .filter(
+      (proj) =>
+        proj.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        proj.title.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+    .filter((proj) => {
+      if (filterMode === "approved") return proj.status === "Approved";
+      if (filterMode === "rejected") return proj.status === "Rejected";
+      return true;
+    });
+
+  const handleFilter = (mode) => setFilterMode(mode);
+
+  // Reset statuses to Pending for eligible projects.
+  // NOTE: Assumption: "student rejected" is not tracked separately in the
+  // sample data, so we use `proj.status` (admin) and `proj.teacherStatus`.
+  // We only reset projects where neither the teacher nor the admin has
+  // marked them as Rejected.
+  const handleResetStatuses = () => {
+    setProjectList((prev) =>
+      prev.map((p) => {
+        if (p.teacherStatus !== "Rejected" && p.status !== "Rejected") {
+          return { ...p, status: "Pending" };
+        }
+        return p;
+      }),
+    );
+    // also clear any filters
+    setFilterMode("all");
+  };
 
   // --- Stats Calculation ---
   const stats = {
@@ -255,6 +291,34 @@ const AdminDash = () => {
           >
             <RotateCcw size={20} /> RESET
           </button>
+          <div className="flex items-center gap-3 md:ml-4">
+            <button
+              onClick={() => handleFilter("approved")}
+              className={`py-3 px-5 rounded-xl font-black text-sm transition ${
+                filterMode === "approved"
+                  ? "bg-green-600 text-white"
+                  : "bg-white/5 text-white/90"
+              }`}
+            >
+              Approved
+            </button>
+            <button
+              onClick={() => handleFilter("rejected")}
+              className={`py-3 px-5 rounded-xl font-black text-sm transition ${
+                filterMode === "rejected"
+                  ? "bg-red-600 text-white"
+                  : "bg-white/5 text-white/90"
+              }`}
+            >
+              Rejected
+            </button>
+            <button
+              onClick={handleResetStatuses}
+              className="py-3 px-5 rounded-xl font-black text-sm bg-indigo-600 text-white"
+            >
+              Reset Statuses
+            </button>
+          </div>
         </div>
 
         {/* Table Section */}
@@ -338,6 +402,12 @@ const AdminDash = () => {
                             className={`p-3 rounded-xl transition-all shadow-lg ${isTeacherApproved ? "bg-red-600 text-white hover:scale-110" : "bg-gray-200 text-gray-400"}`}
                           >
                             <XCircle size={22} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(proj.id)}
+                            className="p-3 bg-red-600 text-white rounded-xl hover:scale-110 shadow-lg"
+                          >
+                            <Trash2 size={20} />
                           </button>
                           <button className="p-3 bg-indigo-600 text-white rounded-xl hover:scale-110 shadow-lg shadow-indigo-600/20">
                             <Eye size={22} />

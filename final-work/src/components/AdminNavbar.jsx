@@ -97,7 +97,7 @@ function AdminNavbar() {
               </div>
 
               <NavLink
-                to="/admin/Addteacher"
+                to="/admin/add-teacher"
                 className={linkClass}
                 onClick={() => setIsOpen(false)}
               >
