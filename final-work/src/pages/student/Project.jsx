@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import heroImg from "../../assets/Home1.jpg";
 import { Lightbulb, User, Tag, Calendar } from "lucide-react"; // Icons ke liye (optional)
 
 const Project = () => {
@@ -40,22 +41,35 @@ const Project = () => {
       <button
         onClick={handleTake}
         className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition-colors flex justify-center items-center gap-2"
+        aria-label="Open project in form"
+        title="Open project in form"
       >
-        Take Idea
+        Project View
       </button>
     );
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header Section */}
-      <div className="max-w-6xl mx-auto mb-10 text-center">
-        <h2 className="text-3xl font-extrabold text-gray-800 flex justify-center items-center gap-2">
-          <Lightbulb className="text-yellow-500" /> Faculty Curated Ideas
-        </h2>
-        <p className="text-gray-600 mt-2">
-          Browse concise, ready-to-start FYP ideas from your instructors.
-        </p>
+      {/* Hero Section (full width) */}
+      <div className="-mx-6 mb-8">
+        <div className="relative w-full h-72 md:h-96 lg:h-[40rem] overflow-hidden">
+          <img
+            src={heroImg}
+            alt="Faculty ideas"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-blue-800/55" />
+          <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
+            <h1 className="text-3xl md:text-5xl font-extrabold flex items-center gap-3 text-yellow-200 drop-shadow-lg">
+              <Lightbulb className="text-yellow-200" /> Find Top Project Ideas
+            </h1>
+            <p className="mt-3 text-base md:text-lg text-white drop-shadow">
+              Curated, ready-to-start project ideas from faculty — jumpstart
+              your FYP today.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Ideas Grid */}
