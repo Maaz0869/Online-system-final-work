@@ -6,6 +6,20 @@ import ProfileImg from "../assets/profile.webp";
 function AdminNavbar() {
   const [isOpen, setIsOpen] = useState(false);
 
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    window.location.href = "/login";
+  };
+
   // Admin ke liye hum thoda different active color ya style use kar sakte hain
   const linkClass = ({ isActive }) =>
     `py-1 px-3 text-lg font-bold text-gray-800 hover:text-red-600 rounded-2xl transition duration-300 border-t-4 ${
@@ -63,13 +77,25 @@ function AdminNavbar() {
           >
             {/* Admin Specific Links */}
             <div className="flex flex-col md:flex-row flex-1 justify-center items-center gap-4 py-5 md:py-0 w-full">
-              <NavLink
-                to="/admin/dashboard"
-                className={linkClass}
-                onClick={() => setIsOpen(false)}
-              >
-                Dashboard
-              </NavLink>
+              <div className="flex items-center gap-3">
+                <NavLink
+                  to="/admin/dashboard"
+                  className={linkClass}
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard
+                </NavLink>
+
+                {/* About (use same linkClass as other nav items) */}
+                <NavLink
+                  to="/about"
+                  className={linkClass}
+                  onClick={() => setIsOpen(false)}
+                >
+                  About
+                </NavLink>
+              </div>
+
               <NavLink
                 to="/admin/Addteacher"
                 className={linkClass}
@@ -95,14 +121,25 @@ function AdminNavbar() {
 
             {/* Right: Profile & Logout */}
             <div className="flex flex-col md:flex-row items-center gap-3 py-5 md:py-0 px-4">
-              <button className="w-full md:w-auto px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition text-sm font-semibold">
-                Logout
-              </button>
-              <img
-                src={ProfileImg}
-                alt="Admin Profile"
-                className="h-10 w-10 rounded-full object-cover border-2 border-red-200 shadow-sm hidden md:block"
-              />
+              {user ? (
+                <>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full md:w-auto px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition text-sm font-semibold"
+                  >
+                    Logout
+                  </button>
+                  <img
+                    src={ProfileImg}
+                    alt="Admin Profile"
+                    className="h-10 w-10 rounded-full object-cover border-2 border-red-200 shadow-sm hidden md:block"
+                  />
+                </>
+              ) : (
+                <button className="w-full md:w-auto px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition text-sm font-semibold">
+                  Login
+                </button>
+              )}
             </div>
           </div>
         </div>

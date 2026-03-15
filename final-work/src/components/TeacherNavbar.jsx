@@ -5,6 +5,19 @@ import ProfileImg from "../assets/profile.webp";
 
 function TeacherNavbar() {
   const [isOpen, setIsOpen] = useState(false); // Mobile menu handle karne ke liye
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    window.location.href = "/login";
+  };
 
   const linkClass = ({ isActive }) =>
     `py-1 px-3 text-xl font-bold text-black hover:text-yellow-300 rounded-2xl transition duration-300 border-t-4 ${
@@ -62,7 +75,7 @@ function TeacherNavbar() {
             {/* Nav Links */}
             <div className="flex flex-col md:flex-row flex-1 justify-center items-center gap-5 py-5 md:py-0 w-full">
               <NavLink
-                to="/dashboard"
+                to="/teacher/dashboard"
                 className={linkClass}
                 onClick={() => setIsOpen(false)}
               >
@@ -83,7 +96,7 @@ function TeacherNavbar() {
                 About
               </NavLink>
               <NavLink
-                to="/profile"
+                to="/teacher/profile"
                 className={linkClass}
                 onClick={() => setIsOpen(false)}
               >
@@ -94,12 +107,18 @@ function TeacherNavbar() {
 
             {/* Right: Buttons & Profile */}
             <div className="flex flex-col md:flex-row items-center gap-3 py-5 md:py-0 px-4">
-              <button className="w-full md:w-auto px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition text-sm">
-                SignIn/SignUp
-              </button>
-              <button className="w-full md:w-auto px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100 transition text-sm">
-                Logout
-              </button>
+              {!user ? (
+                <button className="w-full md:w-auto px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition text-sm">
+                  SignIn/SignUp
+                </button>
+              ) : (
+                <button
+                  onClick={handleLogout}
+                  className="w-full md:w-auto px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100 transition text-sm"
+                >
+                  Logout
+                </button>
+              )}
               <img
                 src={ProfileImg}
                 alt="Profile"

@@ -15,48 +15,102 @@ import AdminDashboard from "./pages/admin/AdminDash";
 import LoginForm from "./pages/LoginForm";
 import SignUPForm from "./pages/SignUPForm";
 
+// Simple private route wrapper which checks localStorage for user and optional role
+const PrivateRoute = ({ children, roles }) => {
+  try {
+    const raw = localStorage.getItem("user");
+    if (!raw) return <Navigate to="/login" replace />;
+    const user = JSON.parse(raw);
+    if (!roles || roles.length === 0) return children;
+    if (roles.includes(user.role)) return children;
+    // role mismatch
+    return <Navigate to="/login" replace />;
+  } catch (e) {
+    return <Navigate to="/login" replace />;
+  }
+};
+
 function App() {
   // Simple private route wrapper - checks localStorage for user
-  const PrivateRoute = ({ children }) => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (user) return children;
-    } catch (e) {
-      // ignore
-    }
-    return <Navigate to="/login" replace />;
-  };
+  // const PrivateRoute = ({ children }) => {
+  //   try {
+  //     const user = JSON.parse(localStorage.getItem("user"));
+  //     if (user) return children;
+  //   } catch (e) {
+  //     // ignore
+  //   }
+  //   return <Navigate to="/login" replace />;
+  // };
+  // determine which navbar to show based on logged-in user
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user"));
+  } catch (e) {
+    user = null;
+  }
+
   return (
     <>
-      <StudentNavbar />
+      {/* Conditional Navbar */}
+      {user?.role === "teacher" ? (
+        <TeacherNavbar />
+      ) : user?.role === "admin" ? (
+        <AdminNavbar />
+      ) : (
+        <StudentNavbar />
+      )}
+
       <Routes>
-        <Route path="/dashboard" element={<StudentDash />} />
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/project" element={<Project />} />
-        <Route path="/form" element={<Form />} />
+        <Route
+          path="/form"
+          element={
+            <PrivateRoute roles={["student"]}>
+              <Form />
+            </PrivateRoute>
+          }
+        />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignUPForm />} />
+
+        {/* Dashboards - protected by role */}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute roles={["student"]}>
+              <StudentDash />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/teacher/dashboard"
+          element={
+            <PrivateRoute roles={["teacher"]}>
+              <TeacherDash />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/teacher/profile"
+          element={
+            <PrivateRoute roles={["teacher"]}>
+              <TeacherProfile />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <PrivateRoute roles={["admin"]}>
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
       </Routes>
+
       <Footer />
-      {/* ab is ki bad ham TEacher ka section banahi gi  */}
-      {/* <TeacherNavbar />
-      <Routes>
-        <Route path="/dashboard" element={<TeacherDash />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/profile" element={<TeacherProfile />} />
-      </Routes>
-      <Footer /> */}
-      {/* <AdminNavbar /> */}
-      {/* Admin ke liye bhi ham ek dashboard bana sakte hain jisme wo users aur projects manage kar sake */}
-      {/* <Routes>
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/Addteacher" element={<AddTeacher />} />
-        <Route path="/admin/all-projects" element={<h1>All Projects</h1>} />
-      </Routes> */}
-      {/* <Footer /> */}
-      {/* Login/Signup moved into routes so they don't render all the time */}
     </>
   );
 }

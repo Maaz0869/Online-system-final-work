@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import HeroBg from "../../assets/above.jpg";
+import Logo from "../../assets/uap-logo.png";
 
 const teachersData = [
   {
@@ -57,6 +58,43 @@ export default function About() {
     }
   });
 
+  // helper to normalize saved teacher objects into the shape this component expects
+  const normalizeSaved = (s) => ({
+    id: s.id ?? s.email ?? Math.random().toString(36).slice(2, 8),
+    name: s.name || s.fullName || s.email || "Unnamed",
+    // older saves may use `designation` instead of `field`
+    field: s.field || s.designation || s.specialization || "Specialization",
+    // expertise may be stored as string or array
+    expertise: Array.isArray(s.expertise)
+      ? s.expertise
+      : typeof s.expertise === "string"
+        ? s.expertise
+        : [],
+    requestsCount: typeof s.requestsCount === "number" ? s.requestsCount : 0,
+    bio: s.bio || "",
+    office: s.office || "",
+    profileImg: s.profileImg || null,
+    email: s.email || "",
+  });
+
+  // combine initial static data with any saved teacher profiles in localStorage
+  const [teachers, setTeachers] = useState(() => {
+    try {
+      const raw = localStorage.getItem("teachers");
+      const saved = raw ? JSON.parse(raw) : [];
+      const normalized = saved.map(normalizeSaved);
+      // merge: saved (normalized) first, then defaults that don't have same email
+      const emails = new Set(normalized.map((s) => s.email));
+      const merged = [
+        ...normalized,
+        ...teachersData.filter((t) => !emails.has(t.email)),
+      ];
+      return merged;
+    } catch (err) {
+      return teachersData;
+    }
+  });
+
   useEffect(() => {
     const onStorage = (e) => {
       if (e.key === "user") {
@@ -66,9 +104,40 @@ export default function About() {
           setUser(null);
         }
       }
+      if (e.key === "teachers") {
+        try {
+          const saved = e.newValue ? JSON.parse(e.newValue) : [];
+          const normalized = saved.map(normalizeSaved);
+          const emails = new Set(normalized.map((s) => s.email));
+          const merged = [
+            ...normalized,
+            ...teachersData.filter((t) => !emails.has(t.email)),
+          ];
+          setTeachers(merged);
+        } catch (err) {
+          setTeachers(teachersData);
+        }
+      }
     };
+
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // also update when the page mounts in case localStorage was set in same tab
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("teachers");
+      const saved = raw ? JSON.parse(raw) : [];
+      const emails = new Set(saved.map((s) => s.email));
+      const merged = [
+        ...saved,
+        ...teachersData.filter((t) => !emails.has(t.email)),
+      ];
+      setTeachers(merged);
+    } catch (err) {
+      setTeachers(teachersData);
+    }
   }, []);
 
   return (
@@ -93,7 +162,7 @@ export default function About() {
               Final Year Project.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              {user && (
+              {user && user.role === "student" && (
                 <Link
                   to="/form"
                   className="px-10 py-4 bg-yellow-400 text-black rounded-full font-black hover:bg-yellow-500 transition-all shadow-xl active:scale-95"
@@ -125,7 +194,7 @@ export default function About() {
 
       {/* Teacher Cards Grid */}
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-        {teachersData.map((t) => {
+        {teachers.map((t) => {
           const isFull = t.requestsCount >= REQUEST_LIMIT;
           const initial = t.name
             .split(" ")
@@ -142,15 +211,30 @@ export default function About() {
                   : "border-transparent hover:border-yellow-200 hover:shadow-[0_20px_50px_rgba(245,158,11,0.08)] hover:-translate-y-2 shadow-sm"
               }`}
             >
-              {/* Profile Initial Circle */}
-              <div
-                className={`w-20 h-20 rounded-3xl mb-6 flex items-center justify-center text-2xl font-black transition-all duration-500 rotate-3 group-hover:rotate-0 ${
-                  isFull
-                    ? "bg-gray-100 text-gray-400"
-                    : "bg-yellow-50 text-blue-600 shadow-inner"
-                }`}
-              >
-                {initial}
+              {/* small logo badge */}
+              <img
+                src={Logo}
+                alt="logo"
+                className="w-10 h-10 object-contain absolute top-4 left-4 opacity-90"
+              />
+
+              {/* Profile Initial / Photo */}
+              <div className="mb-6">
+                {t.profileImg ? (
+                  <div className="w-20 h-20 rounded-3xl overflow-hidden mb-0 shadow-inner transition-all duration-500 rotate-3 group-hover:rotate-0">
+                    <img
+                      src={t.profileImg}
+                      alt={t.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className={`w-20 h-20 rounded-3xl mb-0 flex items-center justify-center text-2xl font-black transition-all duration-500 rotate-3 group-hover:rotate-0 ${isFull ? "bg-gray-100 text-gray-400" : "bg-yellow-50 text-blue-600"}`}
+                  >
+                    {initial}
+                  </div>
+                )}
               </div>
 
               {/* Status Badge */}
@@ -171,9 +255,39 @@ export default function About() {
                 {t.field}
               </p>
 
-              <p className="text-slate-500 text-center text-sm leading-relaxed mb-8 grow px-2">
-                {t.expertise}
-              </p>
+              {/* Bio */}
+              {t.bio && (
+                <p className="text-slate-600 text-center text-sm leading-relaxed mb-3 px-2">
+                  {t.bio}
+                </p>
+              )}
+
+              {/* Office */}
+              {t.office && (
+                <div className="mb-3 text-center">
+                  <span className="text-xs text-slate-500 font-semibold mr-2">
+                    🏢
+                  </span>
+                  <span className="text-xs text-slate-700">{t.office}</span>
+                </div>
+              )}
+
+              {/* Expertise chips */}
+              <div className="flex flex-wrap gap-2 justify-center mb-6">
+                {(typeof t.expertise === "string"
+                  ? t.expertise.split(",")
+                  : Array.isArray(t.expertise)
+                    ? t.expertise
+                    : [t.expertise]
+                ).map((tag, i) => (
+                  <span
+                    key={i}
+                    className="text-[11px] px-3 py-1 rounded-full bg-white/70 border border-white/30 text-slate-700 font-semibold"
+                  >
+                    {tag.trim()}
+                  </span>
+                ))}
+              </div>
 
               {/* Progress & Slot Info */}
               <div className="w-full space-y-3 mb-8">
